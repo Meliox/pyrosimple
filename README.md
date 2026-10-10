@@ -10,12 +10,31 @@ A overhauled Python 3 fork of the [pyrocore
 tools](https://github.com/pyroscope/pyrocore), for working with the
 [rTorrent client](https://github.com/rakshasa/rtorrent).
 
+> **Note:** This repository is a fork of
+> [kannibalox/pyrosimple](https://github.com/kannibalox/pyrosimple).
+> It is not published to PyPI, so `pip install pyrosimple` installs
+> the original project, not this fork. Likewise, the Docker image
+> `kannibalox/pyrosimple` on Docker Hub is built from the original project,
+> not this fork; to use Docker with this fork, build the image yourself
+> from the included `Dockerfile` (`docker build -t pyrosimple .`).
+>
+> Supported rTorrent version: 0.16.25. The original project does not
+> support the updated rTorrent versions, which is the main reason for this
+> fork.
+
 ## Installation
 
+This fork must be installed manually from source:
+
 ```bash
-pip install pyrosimple
-# pip install 'pyrosimple[torque]' # Optional dependencies for using pyrotorque
+git clone https://github.com/Meliox/pyrosimple.git
+cd pyrosimple
+poetry install
+# poetry install --extras torque # Optional dependencies for using pyrotorque
 ```
+
+Alternatively, install into the current environment with
+`pip install .` from the cloned directory.
 
 See the [documentation for usage](https://kannibalox.github.io/pyrosimple/).
 If you've used rtcontrol/rtxmlrpc before, you should feel right at home.
@@ -31,8 +50,7 @@ the code into other processes very painful.
 The following lists are not exhaustive, and don't cover many of the
 internal improvements and refactoring.
 
-- Only supports python 3 and rTorrent 0.9.6+ (this includes
-  [rTorrent-PS](https://github.com/pyroscope/rtorrent-ps), [rTorrent-PS-CH](https://github.com/chros73/rtorrent-ps-ch/) and [jesec/rtorrent](https://github.com/jesec/rtorrent))
+- Only supports python 3 and rTorrent 0.16.25
   - pypy is supported, but not as well tested
 - Simpler poetry-based build system, with a single package to install
 - Performance improvements (faster templating and only fetching
