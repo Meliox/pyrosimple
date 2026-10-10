@@ -3,6 +3,7 @@
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 """
+import logging
 import unittest
 
 import pytest
@@ -47,6 +48,30 @@ def test_validate_sort_fields():
         rtorrent.validate_sort_fields("very_fake_field.raw")
     with pytest.raises(error.UserError):
         rtorrent.validate_sort_fields("name.very_fake_filter")
+
+
+def test_tag_add_then_remove_uses_fresh_rpc_value():
+    class TagRpc:
+        tags = ""
+
+        def __getattr__(self, name):
+            if name == "d.custom":
+                return lambda _hash, _key: self.tags
+            if name == "d.custom.set":
+                return lambda _hash, _key, value: setattr(self, "tags", value)
+            raise AttributeError(name)
+
+    class TagEngine:
+        def __init__(self):
+            self.rpc = TagRpc()
+            self.logger = logging.getLogger(__name__)
+
+    engine = TagEngine()
+    torrent = rtorrent.RtorrentItem(engine, {"hash": "A" * 40})
+    torrent.tag("+review")
+    torrent.tag("-review")
+
+    assert engine.rpc.tags == ""
 
 
 class MockProxy:

@@ -5,6 +5,7 @@
 """
 import logging
 import unittest
+import xmlrpc.client
 
 import pytest
 
@@ -24,3 +25,20 @@ from pyrosimple.util import rpc
 )
 def test_rpc_url(url):
     rpc.RTorrentProxy(url)
+
+
+def test_missing_hash_fault():
+    fault_message = "invalid parameters: info-hash not found"
+
+    class FaultTransport:
+        def request(self, *_args, **_kwargs):
+            raise xmlrpc.client.Fault(-503, fault_message)
+
+    proxy = rpc.RTorrentProxy(
+        "scgi+unix:///tmp/rtorrent.sock", transport=FaultTransport()
+    )
+
+    with pytest.raises(rpc.HashNotFound) as raised:
+        proxy.d.name("A" * 40)
+
+    assert raised.value.faultCode == -503
