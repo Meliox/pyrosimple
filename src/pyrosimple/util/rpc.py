@@ -261,9 +261,9 @@ class RTorrentProxy(xmlrpclib.ServerProxy):
             if self.__rpc_codec == "json":
                 return self.__request_json(methodname, params)
         except xmlrpclib.Fault as exc:
-            if exc.faultString == "Could not find info-hash.":
+            if exc.faultString == "invalid parameters: info-hash not found":
                 raise HashNotFound(  # pylint: disable=raise-missing-from
-                    exc.faultString
+                    exc.faultString, exc.faultCode
                 )
             raise exc
         raise ValueError(f"Invalid RPC protocol '{self.__rpc_codec}'")

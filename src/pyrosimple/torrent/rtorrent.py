@@ -302,7 +302,7 @@ class RtorrentItem(engine.TorrentProxy):
         # Get tag list and add/remove given tags
         tags = tags.lower()
 
-        previous: List[str] = self.rpc_call("d.custom", ["tags"]).split()
+        previous: List[str] = self.rpc_call("d.custom", ["tags"], cache=False).split()
         tagset = set(previous)
         for tag in tags.replace(",", " ").split():
             if tag.startswith("-"):
