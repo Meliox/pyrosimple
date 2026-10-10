@@ -116,14 +116,14 @@ tzdata = ["tzdata"]
 
 [[package]]
 name = "bencode-py"
-version = "4.0.0"
+version = "4.1.0"
 description = "Simple bencode parser (for Python 2, Python 3 and PyPy)"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "bencode.py-4.0.0-py2.py3-none-any.whl", hash = "sha256:99c06a55764e85ffe81622fdf9ee78bd737bad3ea61d119784a54bb28860d962"},
-    {file = "bencode.py-4.0.0.tar.gz", hash = "sha256:2a24ccda1725a51a650893d0b63260138359eaa299bb6e7a09961350a2a6e05c"},
+    {file = "bencode_py-4.1.0-py3-none-any.whl", hash = "sha256:eec5d11eda36f008351cafa5d8ee51e2e14c9f2aa34df8e31f40e73ae78235a4"},
+    {file = "bencode_py-4.1.0.tar.gz", hash = "sha256:f93372b45dc370fe4024f9230128f1f9fbc0fe30c3d41f1c3a7d02fe6c899813"},
 ]
 
 [[package]]
