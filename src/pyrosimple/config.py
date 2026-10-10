@@ -138,6 +138,17 @@ def expand_rc(rcfile: Path) -> List[Tuple[str, str]]:
                         str_result += arg[1:-1]
                 val = str_result
                 replacements[priv_string_match.group(1)] = str_result
+            if key == "session.path.set":
+                simple_cat_match = re.match(r"\(cat,(.*)\)", val)
+                if simple_cat_match:
+                    str_result = ""
+                    for arg in RCLexer(simple_cat_match.group(1)):
+                        if arg.startswith("("):
+                            str_result += replacements.get(arg[1:-1], "")
+                        if arg.startswith('"'):
+                            str_result += arg[1:-1]
+                    val = str_result
+                    replacements["session.path"] = str_result
             if key in [
                 "network.scgi.open_local",
                 "scgi_local",
@@ -150,8 +161,10 @@ def expand_rc(rcfile: Path) -> List[Tuple[str, str]]:
                     for arg in RCLexer(simple_cat_match.group(1)):
                         if arg.startswith("("):
                             str_result += replacements.get(arg[1:-1], "")
-                        if arg.startswith('"'):
+                        elif arg.startswith('"'):
                             str_result += arg[1:-1]
+                        else:
+                            str_result += arg
                     val = str_result
             data.append((key, val))
         return data
