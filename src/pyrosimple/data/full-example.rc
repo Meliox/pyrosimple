@@ -30,7 +30,7 @@ execute.nothrow = sh, -c, (cat, "echo >",\
 
 print = (cat, "Logging to ", (cfg.logfile))
 log.open_file = "log", (cfg.logfile)
-log.add_output = "info", "log"
+log.add_output = "events", "log"
 
 # Return path to item data (never empty, unlike `d.base_path`);
 # multi-file items return a path ending with a '/'.

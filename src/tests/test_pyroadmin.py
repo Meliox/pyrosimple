@@ -10,6 +10,7 @@ def test_pyroadmin_create_rc(tmp_path_factory):
     config.SETTINGS_FILE = "/dev/null"
     AdminTool().run(["config", "--create-rtorrent-rc"])
     assert rc_path.stat().st_size > 0
+    assert 'log.add_output = "events", "log"' in rc_path.read_text(encoding="utf-8")
 
 
 def test_pyroadmin_create_config(tmp_path_factory):

@@ -5,6 +5,7 @@
 ### Changed
 - Explicitly support python 3.15
 - Drop support for Python versions earlier than 3.12
+- Use the `events` logging group in the generated rTorrent config for rTorrent 0.16.26+
 
 ### Fixed
 - `mktor`/`chtor`: Fix error when removing non-existing key with `-s`
