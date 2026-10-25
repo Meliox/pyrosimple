@@ -5,6 +5,7 @@
 
 
 import errno
+import importlib.metadata
 import logging.config
 import sys
 import textwrap
@@ -41,19 +42,7 @@ class ScriptBase:
         self.intermixed_args = False
 
         logging.basicConfig(level=logging.WARNING)
-        # For python 3.7 compatibility
-        try:
-            import importlib.metadata  # pylint: disable=import-outside-toplevel
-
-            version = importlib.metadata.version(  # pylint: disable=no-member
-                "pyrosimple"
-            )
-        except ImportError:
-            import importlib_metadata  # pylint: disable=import-outside-toplevel
-
-            version = importlib_metadata.version(  # pylint: disable=no-member
-                "pyrosimple"
-            )
+        version = importlib.metadata.version("pyrosimple")
         implementation = sys.implementation.name
         if implementation == "cpython":
             implementation = "Python"

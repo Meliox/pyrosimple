@@ -262,8 +262,9 @@ class AdminTool(ScriptBase):
             rtorrent_rc_path.parent.mkdir(parents=True, exist_ok=True)
             with rtorrent_rc_path.open("w", encoding="utf-8") as fh:
                 fh.write(
-                    importlib.resources.open_text("pyrosimple.data", "full-example.rc")
-                    .read()
+                    importlib.resources.files("pyrosimple.data")
+                    .joinpath("full-example.rc")
+                    .read_text(encoding="utf-8")
                     .replace("/home/USERNAME", home)
                 )
 

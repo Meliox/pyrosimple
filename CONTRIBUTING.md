@@ -7,7 +7,7 @@ pyrosimple is developed using [poetry](https://python-poetry.org/).
 The quickest way to get started is:
 ```bash
 curl -sSL https://install.python-poetry.org | python3 -
-git clone https://github.com/kannibalox/pyrosimple.git
+git clone https://github.com/Meliox/pyrosimple.git
 cd pyrosimple/
 poetry install
 ```

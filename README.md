@@ -42,7 +42,7 @@ the code into other processes very painful.
 The following lists are not exhaustive, and don't cover many of the
 internal improvements and refactoring.
 
-- Only supports python 3 and rTorrent 0.16.25
+- Requires Python 3.12 or newer and supports rTorrent 0.16.25
   - pypy is supported, but not as well tested
 - Simpler poetry-based build system, with a single package to install
 - Performance improvements (faster templating and only fetching
