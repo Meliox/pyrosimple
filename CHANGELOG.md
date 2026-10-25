@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- Explicitly support python 3.15
+
 ### Fixed
 - `mktor`/`chtor`: Fix error when removing non-existing key with `-s`
 
