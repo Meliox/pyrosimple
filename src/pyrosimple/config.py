@@ -16,10 +16,7 @@ from pathlib import Path
 from typing import Dict, Iterator, List, Optional, Tuple, Union
 
 
-try:
-    import tomllib
-except ModuleNotFoundError:
-    import tomli as tomllib  # type: ignore
+import tomllib
 
 from box.box import Box
 

@@ -5,7 +5,6 @@ import os
 import shlex
 import socket
 import subprocess
-import sys
 import gzip
 
 from typing import Dict, List, Optional, Tuple, Type
@@ -50,9 +49,7 @@ class RTorrentTransport(xmlrpclib.Transport):
         self.verbose = False
         # We need to handle the headers differently based on the RPC protocols
         self._headers = list(headers)
-        # Pass them to the transport in py 3.8+ only
-        if sys.version_info.minor >= 8:
-            kwargs["headers"] = self._headers
+        kwargs["headers"] = self._headers
         super().__init__(*args, **kwargs)
 
     def parse_response(self, response):
@@ -100,8 +97,7 @@ class SSHTransport(RTorrentTransport):
                 check=False,
             )
         if resp.returncode > 0:
-            # TODO: shlex.join when 3.7 support is dropped
-            logger.error("SSH command %r returned non-zero exit code", cmd)
+            logger.error("SSH command %s returned non-zero exit code", shlex.join(cmd))
             logger.error("stderr: %s", resp.stderr)
             logger.error("stdout: %s", resp.stdout)
         response_size_counter.inc(len(resp.stdout))
