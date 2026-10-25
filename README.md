@@ -10,7 +10,7 @@ A overhauled Python 3 fork of the [pyrocoretools](https://github.com/pyroscope/p
 > not this fork; to use Docker with this fork, build the image yourself
 > from the included `Dockerfile` (`docker build -t pyrosimple .`).
 >
-> Supported rTorrent version: 0.16.25. The original project does not
+> Supported rTorrent version: 0.16.26. The original project does not
 > support the updated rTorrent versions, which is the main reason for this
 > fork.
 
