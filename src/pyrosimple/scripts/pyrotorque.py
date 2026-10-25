@@ -165,20 +165,23 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
     def reload_jobs(self):
         """Reload the configured jobs gracefully."""
         try:
-            config.load_settings()
-            if self.running_config != dict(config.settings.TORQUE):
+            new_settings = config.load_settings()
+            if self.running_config != dict(new_settings.TORQUE):
                 self.log.info("Config change detected, reloading jobs")
+                config.settings = new_settings
+                self.jobs = {}
                 self.validate_config()
                 self.sched.pause()
-                self.sched.remove_all_jobs()
-                self.unload_jobs()
-                self.sched.resume()
-                self.add_jobs()
+                try:
+                    self.sched.remove_all_jobs()
+                    self.unload_jobs()
+                    self.classes = {}
+                    self.add_jobs()
+                finally:
+                    self.sched.resume()
                 self.running_config = dict(config.settings.TORQUE)
         except Exception as exc:  # pylint: disable=broad-except
             self.log.error("Error while reloading config: %s", exc)
-        else:
-            self.sched.resume()
 
     def run_forever(self):
         """Run configured jobs until termination request."""
