@@ -5,6 +5,7 @@
 ### Changed
 - Explicitly support python 3.15
 - Drop support for Python versions earlier than 3.12
+- Update documented supported rTorrent version to 0.16.27
 - Use the `events` logging group in the generated rTorrent config for rTorrent 0.16.26+
 
 ### Fixed
