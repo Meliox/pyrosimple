@@ -63,9 +63,13 @@ number or `major`, `minor`, or `patch`. It opens a version-bump pull request;
 after the pull request is merged into `main`, the workflow builds the merged
 commit and publishes its packages and release notes on GitHub.
 
-The workflow requires a repository secret named `RELEASE_PR_TOKEN` containing
-a personal access token with repository contents and pull requests write
-access. This token allows the release pull request to trigger the normal
-checks. If a release tag already exists, resolve
-it manually before retrying; the failed first release run left an orphaned
+The workflow uses the built-in `GITHUB_TOKEN`; no personal access token or
+additional secret is required. In **Settings > Actions > General > Workflow
+permissions**, enable **Allow GitHub Actions to create and approve pull
+requests**. When the release pull request displays **Approve workflows to
+run**, approve its checks, then review and merge the pull request. Publishing
+is triggered by the merge, not by review approval alone.
+
+If a release tag already exists, resolve it manually before retrying; the
+failed first release run left an orphaned
 `v3.0.0` tag that must be removed before releasing that version.
