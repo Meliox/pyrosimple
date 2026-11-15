@@ -1,14 +1,14 @@
 # pyrosimple
-A overhauled Python 3 fork of the [pyrocoretools](https://github.com/pyroscope/pyrocore), for working with the
+An overhauled Python 3 fork of [pyrocore](https://github.com/pyroscope/pyrocore), for working with the
 [rTorrent client](https://github.com/rakshasa/rtorrent).
 
 > **Note:** This repository is a fork of
 > [kannibalox/pyrosimple](https://github.com/kannibalox/pyrosimple).
 > It is not published to PyPI, so `pip install pyrosimple` installs
 > the original project, not this fork. Likewise, the Docker image
-> `kannibalox/pyrosimple` on Docker Hub is built from the original project,
-> not this fork; to use Docker with this fork, build the image yourself
-> from the included `Dockerfile` (`docker build -t pyrosimple .`).
+> `kannibalox/pyrosimple` on Docker Hub is built from the original project;
+> to use Docker with this fork, build the image yourself from the included
+> `Dockerfile` (`docker build -t pyrosimple .`).
 >
 > Supported rTorrent version: 0.16.27. The original project does not
 > support the updated rTorrent versions, which is the main reason for this
@@ -31,38 +31,29 @@ Alternatively, install into the current environment with
 See the [documentation for usage](https://kannibalox.github.io/pyrosimple/).
 If you've used rtcontrol/rtxmlrpc before, you should feel right at home.
 
-## What's the point of this?
-
-The pyrocore tools are great, but being stuck on python 2, along with
-the complicated install procedure made integrating both the tools and
-the code into other processes very painful.
-
 ## Differences from pyrocore
 
 The following lists are not exhaustive, and don't cover many of the
 internal improvements and refactoring.
 
 - Requires Python 3.12 or newer and supports rTorrent 0.16.27
-  - pypy is supported, but not as well tested
 - Simpler poetry-based build system, with a single package to install
 - Performance improvements (faster templating and only fetching
   required fields)
-- Replaced Tempita with [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/)
+- Replaced Tempita with [Jinja2](https://jinja.palletsprojects.com/)
 
 ### New features
 
 - Multi-instance support for rtcontrol/rtxmlrpc
-- Support for JSON-RPC (currently only implemented by
-  [jesec/rtorrent](https://github.com/jesec/rtorrent))
+- Support for JSON-RPC (see the
+  [experimental features](https://kannibalox.github.io/pyrosimple/experimental/))
 - Actions to move torrents between paths, or torrents between hosts
 
 See https://kannibalox.github.io/pyrosimple/migrate/ for how to
 migrate scripts to the new features.
 
-## Legacy branch
+## Releases
 
-If you just want to use the pyrocore tools on python 3 without all the
-new features, you can use the `release-1.X` branch (1.3 is the latest
-release at time of writing).  These releases will only receive bug
-fixes or changes to maintain compatibility with the original pyrocore
-tools.
+Releases are published on the
+[GitHub releases page](https://github.com/Meliox/pyrosimple/releases),
+with notes taken from the [changelog](CHANGELOG.md).
