@@ -15,7 +15,7 @@ import subprocess
 import sys
 import time
 
-from multiprocessing.pool import ThreadPool
+from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, List, Union
 
 from box.box import Box
@@ -814,238 +814,243 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.open()
 
         # Kick off the result fetcher in a thread pool
-        pool = ThreadPool(processes=len(self.engines))
-        futures = {}
-        for url, r_engine in self.engines.items():
+        with ThreadPoolExecutor(max_workers=len(self.engines)) as pool:
+            futures = {}
+            for url, r_engine in self.engines.items():
 
-            def fetch(e):
-                # pylint: disable=import-outside-toplevel
-                from pyrosimple.torrent import engine
+                def fetch(e):
+                    # pylint: disable=import-outside-toplevel
+                    from pyrosimple.torrent import engine
 
-                view = e.view(self.options.from_view, matcher)
-                prefetch = [
-                    engine.FIELD_REGISTRY[f].requires
-                    for f in self.get_output_fields()
-                    + key_names
-                    + [
-                        s[1:] if s.startswith("-") else s
-                        for s in self.options.sort_fields.split(",")
-                    ]
-                ]
-                prefetch = [item for sublist in prefetch for item in sublist]
-                matches = list(e.items(view=view, prefetch=prefetch))
-                matches.sort(key=sort_key, reverse=self.options.reverse_sort)
-                return matches
-
-            futures[url] = pool.apply_async(fetch, (r_engine,))
-
-        # The rest of the pipeline should still be done in sequence
-        for url, r_engine in self.engines.items():
-            view = r_engine.view(self.options.from_view, matcher)
-            matches = futures[url].get()
-
-            if selection:
-                matches = matches[selection[0] - 1 : selection[1]]
-
-            if not matches:
-                # Think "404 NOT FOUND", but then exit codes should be < 256
-                self.return_code = 44
-
-            # Tee to ncurses view, if requested
-            if self.options.tee_view and (
-                self.options.to_view or self.options.view_only
-            ):
-                self.show_in_view(view, matches)
-
-            # Generate summary?
-            if self.options.stats or self.options.summary:
-                for field in self.get_output_fields():
-                    try:
-                        0 + getattr(matches[0], field)
-                    except (TypeError, ValueError, IndexError):
-                        summary.total[field] = ""
-                    else:
-                        for item in matches:
-                            summary.add(field, getattr(item, field))
-
-            # Run actions?
-            if actions:
-                self.log.info(
-                    "%s perform actions [%s] on %d out of %d torrents.",
-                    "Would" if self.options.dry_run else "About to",
-                    ",".join([a["method"] for a in actions]),
-                    len(matches),
-                    view.size(),
-                )
-            for item in matches:
-                for action in actions:
-                    action_name = action["method"].replace("_", " ")
-                    defaults = {"action": action_name, "now": time.time}
-                    defaults.update(self.FORMATTER_DEFAULTS)
-
-                    args = action["args"]
-                    # Templatetize arguments for some commands
-                    if action_name in ["call", "spawn", "execute"] + list(
-                        self.MOVE_TYPES
-                    ) + [f"{m} and set" for m in self.MOVE_TYPES]:
-                        template_args = [
-                            ("{##}" + i if "{{" in i else i) for i in action["args"]
+                    view = e.view(self.options.from_view, matcher)
+                    prefetch = [
+                        engine.FIELD_REGISTRY[f].requires
+                        for f in self.get_output_fields()
+                        + key_names
+                        + [
+                            s[1:] if s.startswith("-") else s
+                            for s in self.options.sort_fields.split(",")
                         ]
-                        args = tuple(
-                            rtorrent.format_item(
-                                rtorrent.env.from_string(i),
-                                item,
-                                defaults={"item": item},
-                            )
-                            for i in template_args
-                        )
+                    ]
+                    prefetch = [item for sublist in prefetch for item in sublist]
+                    matches = list(e.items(view=view, prefetch=prefetch))
+                    matches.sort(key=sort_key, reverse=self.options.reverse_sort)
+                    return matches
 
-                    # Prompt for user input if enabled
-                    if (
-                        action["interactive"] or self.options.interactive
-                    ) and not self.options.yes:
-                        self.emit(item, defaults)
-                        from prompt_toolkit import (  # pylint: disable=import-outside-toplevel
-                            prompt,
-                        )
+                futures[url] = pool.submit(fetch, r_engine)
 
-                        answer = prompt(
-                            f"{action_name}? [Y)es, n)o, a)ll yes, q)uit]: "
-                        )
-                        if answer.lower() in ["n", "no"]:
-                            continue
-                        if answer.lower() in ["q", "quit"]:
-                            self.log.warning("Qutting due to user choice!")
-                            sys.exit(error.EX_TEMPFAIL)
-                        if answer.lower() in ["a", "all"]:
-                            self.options.yes = True
-                    elif (
-                        self.options.output_format
-                        and not self.options.view_only
-                        and str(self.options.output_format) != "-"
-                    ):
-                        self.emit(item, defaults)
+            # The rest of the pipeline should still be done in sequence
+            for url, r_engine in self.engines.items():
+                view = r_engine.view(self.options.from_view, matcher)
+                matches = futures[url].result()
 
-                    if self.options.dry_run:
-                        arg_str = "(" + ", ".join([f"{a!r}" for a in args]) + ")"
-                        self.log.debug(
-                            "Would call action %s%s", action["method"], arg_str
-                        )
-                    else:
-                        if action_name == "call":
-                            self.log.debug("Calling %r with a shell", args[0])
-                            subprocess.run(args[0], check=True, shell=True)
-                        elif action_name == "spawn":
-                            args = shlex.split(args[0])
-                            self.log.debug("Spawning %r", args)
-                            subprocess.run(args, check=True, shell=False)
-                        # Handle complex moves separately
-                        elif action_name in list(self.MOVE_TYPES) + [
-                            f"{m} and set" for m in self.MOVE_TYPES
-                        ]:
-                            self.move(item, args[0], move_type=action_name)
+                if selection:
+                    matches = matches[selection[0] - 1 : selection[1]]
+
+                if not matches:
+                    # Think "404 NOT FOUND", but then exit codes should be < 256
+                    self.return_code = 44
+
+                # Tee to ncurses view, if requested
+                if self.options.tee_view and (
+                    self.options.to_view or self.options.view_only
+                ):
+                    self.show_in_view(view, matches)
+
+                # Generate summary?
+                if self.options.stats or self.options.summary:
+                    for field in self.get_output_fields():
+                        try:
+                            0 + getattr(matches[0], field)
+                        except (TypeError, ValueError, IndexError):
+                            summary.total[field] = ""
                         else:
-                            # Look up aliases when moving to a host
-                            if action_name == "move to host":
-                                args[0] = config.lookup_connection_alias(args[0])
-                            # Get the function from RtorrentItem
-                            getattr(item, action["method"])(*args)
-                        if self.options.view_only:
-                            show_in_client = functools.partial(
-                                lambda x, e: e.open().log(rpc.NOHASH, x), e=r_engine
+                            for item in matches:
+                                summary.add(field, getattr(item, field))
+
+                # Run actions?
+                if actions:
+                    self.log.info(
+                        "%s perform actions [%s] on %d out of %d torrents.",
+                        "Would" if self.options.dry_run else "About to",
+                        ",".join([a["method"] for a in actions]),
+                        len(matches),
+                        view.size(),
+                    )
+                for item in matches:
+                    for action in actions:
+                        action_name = action["method"].replace("_", " ")
+                        defaults = {"action": action_name, "now": time.time}
+                        defaults.update(self.FORMATTER_DEFAULTS)
+
+                        args = action["args"]
+                        # Templatetize arguments for some commands
+                        if action_name in ["call", "spawn", "execute"] + list(
+                            self.MOVE_TYPES
+                        ) + [f"{m} and set" for m in self.MOVE_TYPES]:
+                            template_args = [
+                                ("{##}" + i if "{{" in i else i) for i in action["args"]
+                            ]
+                            args = tuple(
+                                rtorrent.format_item(
+                                    rtorrent.env.from_string(i),
+                                    item,
+                                    defaults={"item": item},
+                                )
+                                for i in template_args
                             )
-                            self.emit(item, defaults, to_log=show_in_client)
 
-            # Show in ncurses UI?
-            if not self.options.tee_view and (
-                self.options.to_view or self.options.view_only
-            ):
-                self.show_in_view(view, matches)
+                        # Prompt for user input if enabled
+                        if (
+                            action["interactive"] or self.options.interactive
+                        ) and not self.options.yes:
+                            self.emit(item, defaults)
+                            from prompt_toolkit import (  # pylint: disable=import-outside-toplevel
+                                prompt,
+                            )
 
-            # Dump as JSON array?
-            elif self.options.json:
-                json_data = matches
-                if raw_output_format:
-                    json_fields = raw_output_format.split(",")
-                    json_data = [
-                        {name: getattr(i, name) for name in json_fields}
-                        for i in matches
-                    ]
+                            answer = prompt(
+                                f"{action_name}? [Y)es, n)o, a)ll yes, q)uit]: "
+                            )
+                            if answer.lower() in ["n", "no"]:
+                                continue
+                            if answer.lower() in ["q", "quit"]:
+                                self.log.warning("Qutting due to user choice!")
+                                sys.exit(error.EX_TEMPFAIL)
+                            if answer.lower() in ["a", "all"]:
+                                self.options.yes = True
+                        elif (
+                            self.options.output_format
+                            and not self.options.view_only
+                            and str(self.options.output_format) != "-"
+                        ):
+                            self.emit(item, defaults)
+
+                        if self.options.dry_run:
+                            arg_str = "(" + ", ".join([f"{a!r}" for a in args]) + ")"
+                            self.log.debug(
+                                "Would call action %s%s", action["method"], arg_str
+                            )
+                        else:
+                            if action_name == "call":
+                                self.log.debug("Calling %r with a shell", args[0])
+                                subprocess.run(args[0], check=True, shell=True)
+                            elif action_name == "spawn":
+                                args = shlex.split(args[0])
+                                self.log.debug("Spawning %r", args)
+                                subprocess.run(args, check=True, shell=False)
+                            # Handle complex moves separately
+                            elif action_name in list(self.MOVE_TYPES) + [
+                                f"{m} and set" for m in self.MOVE_TYPES
+                            ]:
+                                self.move(item, args[0], move_type=action_name)
+                            else:
+                                # Look up aliases when moving to a host
+                                if action_name == "move to host":
+                                    args[0] = config.lookup_connection_alias(args[0])
+                                # Get the function from RtorrentItem
+                                getattr(item, action["method"])(*args)
+                            if self.options.view_only:
+                                show_in_client = functools.partial(
+                                    lambda x, e: e.open().log(rpc.NOHASH, x), e=r_engine
+                                )
+                                self.emit(item, defaults, to_log=show_in_client)
+
+                # Show in ncurses UI?
+                if not self.options.tee_view and (
+                    self.options.to_view or self.options.view_only
+                ):
+                    self.show_in_view(view, matches)
+
+                # Dump as JSON array?
+                elif self.options.json:
+                    json_data = matches
+                    if raw_output_format:
+                        json_fields = raw_output_format.split(",")
+                        json_data = [
+                            {name: getattr(i, name) for name in json_fields}
+                            for i in matches
+                        ]
+                    else:
+                        from pyrosimple.torrent import (  # pylint: disable=import-outside-toplevel
+                            engine,
+                        )
+
+                        json_data = [
+                            {
+                                name: getattr(i, name)
+                                for name in list(engine.FIELD_REGISTRY)
+                            }
+                            for i in matches
+                        ]
+                    json.dump(
+                        json_data,
+                        sys.stdout,
+                        indent=2,
+                        separators=(",", ": "),
+                        sort_keys=True,
+                        cls=pymagic.JSONEncoder,
+                    )
+                    sys.stdout.write("\n")
+                    sys.stdout.flush()
+
+                # Show via template?
+                elif self.options.output_template:
+                    full_ns = {
+                        "version": None,
+                        "proxy": r_engine.open(),
+                        "view": view,
+                        "query": matcher,
+                        "matches": matches,
+                        "summary": summary,
+                    }
+
+                    output_template = self.options.output_template
+                    sys.stdout.write(rtorrent.expand_template(output_template, full_ns))
+                    sys.stdout.flush()
+
+                # Show on console?
+                elif (
+                    self.options.output_format
+                    and str(self.options.output_format) != "-"
+                    and not actions
+                ):
+                    if not self.options.summary:
+                        for item in matches:
+                            # Print matching item
+                            self.emit(item, self.FORMATTER_DEFAULTS)
+
+                    # Print summary?
+                    if matches and summary:
+                        print(f"TOTALS:\t{len(matches)} out of {view.size()} torrents")
+                        self.emit(
+                            summary.min, item_formatter=lambda i: "MIN:\t" + i.rstrip()
+                        )
+                        self.emit(
+                            summary.average,
+                            item_formatter=lambda i: "AVG:\t" + i.rstrip(),
+                        )
+                        self.emit(
+                            summary.max, item_formatter=lambda i: "MAX:\t" + i.rstrip()
+                        )
+                        self.emit(
+                            summary.total,
+                            item_formatter=lambda i: "SUM:\t" + i.rstrip(),
+                        )
+
+                    self.log.info(
+                        "Displayed %d out of %d torrents.",
+                        len(matches),
+                        view.size(),
+                    )
                 else:
-                    from pyrosimple.torrent import (  # pylint: disable=import-outside-toplevel
-                        engine,
+                    self.log.info(
+                        "Filtered %d out of %d torrents.",
+                        len(matches),
+                        view.size(),
                     )
 
-                    json_data = [
-                        {name: getattr(i, name) for name in list(engine.FIELD_REGISTRY)}
-                        for i in matches
-                    ]
-                json.dump(
-                    json_data,
-                    sys.stdout,
-                    indent=2,
-                    separators=(",", ": "),
-                    sort_keys=True,
-                    cls=pymagic.JSONEncoder,
-                )
-                sys.stdout.write("\n")
-                sys.stdout.flush()
-
-            # Show via template?
-            elif self.options.output_template:
-                full_ns = {
-                    "version": None,
-                    "proxy": r_engine.open(),
-                    "view": view,
-                    "query": matcher,
-                    "matches": matches,
-                    "summary": summary,
-                }
-
-                output_template = self.options.output_template
-                sys.stdout.write(rtorrent.expand_template(output_template, full_ns))
-                sys.stdout.flush()
-
-            # Show on console?
-            elif (
-                self.options.output_format
-                and str(self.options.output_format) != "-"
-                and not actions
-            ):
-                if not self.options.summary:
-                    for item in matches:
-                        # Print matching item
-                        self.emit(item, self.FORMATTER_DEFAULTS)
-
-                # Print summary?
-                if matches and summary:
-                    print(f"TOTALS:\t{len(matches)} out of {view.size()} torrents")
-                    self.emit(
-                        summary.min, item_formatter=lambda i: "MIN:\t" + i.rstrip()
-                    )
-                    self.emit(
-                        summary.average, item_formatter=lambda i: "AVG:\t" + i.rstrip()
-                    )
-                    self.emit(
-                        summary.max, item_formatter=lambda i: "MAX:\t" + i.rstrip()
-                    )
-                    self.emit(
-                        summary.total, item_formatter=lambda i: "SUM:\t" + i.rstrip()
-                    )
-
-                self.log.info(
-                    "Displayed %d out of %d torrents.",
-                    len(matches),
-                    view.size(),
-                )
-            else:
-                self.log.info(
-                    "Filtered %d out of %d torrents.",
-                    len(matches),
-                    view.size(),
-                )
-
-            self.log.debug("RPC stats: %s", self.rpc_stats())
+                self.log.debug("RPC stats: %s", self.rpc_stats())
         if dcontext is not None:
             dcontext.close()
 
