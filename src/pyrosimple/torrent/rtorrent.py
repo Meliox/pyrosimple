@@ -598,6 +598,8 @@ class RtorrentItem(engine.TorrentProxy):
             )
 
         if not path.exists():
+            if not dry_run and remove_torrent:
+                self.delete()
             return
 
         if self.rpc_call("d.is_multi_file"):

@@ -175,6 +175,10 @@ rtcontrol has many ways to effect torrent, including but not limited to:
 * `-H`/`--hash-check`: trigger a hash check on torrents (equivalent to
   pressing `^R` in the UI)
 
+`--cull`/`--purge` still remove matched torrent entries when their data
+directory is already missing. Culling shared data can affect unmatched
+cross-seeded torrents, but does not automatically remove those entries.
+
 See `rtcontrol --help` for a full list of actions. All action can be
 dry-run with the `-n`/`--dry-run` flag. Many of the more dangerous
 actions (e.g. `--cull`) will prompt before actually performing the
