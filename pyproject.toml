@@ -64,7 +64,7 @@ pylint = [
 ]
 pytest = ">=7.0.1,<10.0.0"
 typing-extensions = "^4.1.1"
-black = "^23.1.0"
+black = ">=23.1,<27.0"
 isort = ">=5.10.1,<7.0.0"
 mypy = "^1.1.1"
 
