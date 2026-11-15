@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-11-15
+
 ### Changed
 - Explicitly support python 3.15
 - Drop support for Python versions earlier than 3.12
@@ -544,7 +546,8 @@ If you just want to use the pyrocore tools on python 3 without all the
 new features, you can use the `release-1.X` branch or the 1.X
 releases.
 
-[Unreleased]: https://github.com/Meliox/pyrosimple/compare/v2.14.2...HEAD
+[Unreleased]: https://github.com/Meliox/pyrosimple/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/Meliox/pyrosimple/releases/tag/v3.0.0
 [2.14.2]: https://github.com/kannibalox/pyrosimple/compare/v2.14.1...v2.14.2
 [2.14.1]: https://github.com/kannibalox/pyrosimple/compare/v2.14.0...v2.14.1
 [2.14.0]: https://github.com/kannibalox/pyrosimple/compare/v2.13.0...v2.14.0
