@@ -10,6 +10,7 @@
 
 ### Fixed
 - `mktor`/`chtor`: Fix error when removing non-existing key with `-s`
+- `rtcontrol`: Avoid spawning multiprocessing resource-tracker processes for threaded result fetching, which accumulated as zombies when run by `pyrotorque` as container PID 1 on Python 3.14+.
 
 ## [2.14.2] - 2025-01-01
 
