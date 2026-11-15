@@ -39,7 +39,7 @@ prompt-toolkit = "^3.0.30"
 requests = "^2.28.1"
 shtab = "^1.5.5"
 inotify = {version = "^0.2.10", optional = true}
-python-box = "^7.0.0"
+python-box = ">=7,<9"
 tomli-w = "^1.0.0"
 
 [tool.poetry.extras]
