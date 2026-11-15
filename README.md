@@ -57,3 +57,19 @@ migrate scripts to the new features.
 Releases are published on the
 [GitHub releases page](https://github.com/Meliox/pyrosimple/releases),
 with notes taken from the [changelog](CHANGELOG.md).
+
+To prepare a release, run the **Release** workflow on `main` with a version
+number or `major`, `minor`, or `patch`. It opens a version-bump pull request;
+after the pull request is merged into `main`, the workflow builds the merged
+commit and publishes its packages and release notes on GitHub.
+
+The workflow uses the built-in `GITHUB_TOKEN`; no personal access token or
+additional secret is required. In **Settings > Actions > General > Workflow
+permissions**, enable **Allow GitHub Actions to create and approve pull
+requests**. When the release pull request displays **Approve workflows to
+run**, approve its checks, then review and merge the pull request. Publishing
+is triggered by the merge, not by review approval alone.
+
+If a release tag already exists, resolve it manually before retrying; the
+failed first release run left an orphaned
+`v3.0.0` tag that must be removed before releasing that version.
