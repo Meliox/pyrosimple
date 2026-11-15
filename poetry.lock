@@ -1092,38 +1092,39 @@ dev = ["argcomplete", "asynctest ; python_version < \"3.11\"", "attrs (>=23.1)",
 
 [[package]]
 name = "python-box"
-version = "7.0.1"
+version = "8.0.0"
 description = "Advanced Python dictionaries with dot notation access"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "python-box-7.0.1.tar.gz", hash = "sha256:dc6724f88255ccbc07092abd506281439cc2b75c6569c754ffc2b22580e7ae06"},
-    {file = "python_box-7.0.1-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:92093bf5b1500004e3608b3f39e54230b21301ffb00ff5f4dbf775f2a409a7a9"},
-    {file = "python_box-7.0.1-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:cccb85f9cbf64eda51c773f3db68aa60291ec1356b0774c37bcd4e13f26b90e7"},
-    {file = "python_box-7.0.1-cp310-cp310-win_amd64.whl", hash = "sha256:f394cca98c777b25836faf25cb5afdc88c01dc753a5aab80055a038229091b7b"},
-    {file = "python_box-7.0.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:86182565c9ebe9ee4a3aece1a55d9d5451c6a44b5ec127a5e4d315909efe6d10"},
-    {file = "python_box-7.0.1-cp311-cp311-win_amd64.whl", hash = "sha256:33d61b81133d1ddf6d85d0658c4c9aca871208c28df74e660dbdfe68f9b470ce"},
-    {file = "python_box-7.0.1-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:042d10f33e56a3b3432a94a23c90672a7f32f6de7116cdd9bc59d852ca08f5f7"},
-    {file = "python_box-7.0.1-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:6a6d71c3c2ebed3f4c888edfa96bc5768f5e7641c4b0b6017d70f68a325811cf"},
-    {file = "python_box-7.0.1-cp37-cp37m-win_amd64.whl", hash = "sha256:dc135cf06ef3dde501de9baab21d908088fb03e2de09e3fe80e8a4f1dcd1ab2b"},
-    {file = "python_box-7.0.1-cp38-cp38-macosx_10_15_x86_64.whl", hash = "sha256:443ff7320c1b7e64384189f532c386600a6c31db9ddd9ded8ecc3ad4c43d0edb"},
-    {file = "python_box-7.0.1-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:6b8265e842eee33dd5d1b129b8da900ec0b6f80db70680b633f9086807f42fb9"},
-    {file = "python_box-7.0.1-cp38-cp38-win_amd64.whl", hash = "sha256:fbb14fac0ff0b2b42e47041b7b8b4f1f8d6f6ac086c8e68b7f0358602905653e"},
-    {file = "python_box-7.0.1-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:84867f6527bbd1d17bc7534e1c64ccd1d173d973ae5eb202f04bdf8c0ca3a690"},
-    {file = "python_box-7.0.1-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:4e35521b9b96cf6a18ecfef7ebcf73fe326956a7b5d789c4ff0a01dc43edd6ce"},
-    {file = "python_box-7.0.1-cp39-cp39-win_amd64.whl", hash = "sha256:f9254a1c7ec5e729e256f9a223773aa8a76d7a995f4d6be0015f74ab93a0f97c"},
-    {file = "python_box-7.0.1-py3-none-any.whl", hash = "sha256:f26f210b2257fd973413e75e8b91aaff9c95d7d61266426a7d3df473c4adcfd4"},
+    {file = "python_box-8.0.0-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:b822cbad9606a4f3c1f4f611bcf1dd8194ed4e85b1eebea846a144aceac12b11"},
+    {file = "python_box-8.0.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:063f80879241ec9d7d94b4c885ce9442ca7bd14e30d60d93758b4405ab598b22"},
+    {file = "python_box-8.0.0-cp311-cp311-win_amd64.whl", hash = "sha256:f928a2329dbae535cfe35c3cdc923d39c67da92290f9425f797b3f5b5a16f22a"},
+    {file = "python_box-8.0.0-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:bb734a55b44b171592d1980ed5e115b6e4c1a39341e1505316fa7044e942de6b"},
+    {file = "python_box-8.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:c564fcdc131a967fa02d4c3936d5c88abbf6742f995fcbea439c6b531e4fb990"},
+    {file = "python_box-8.0.0-cp312-cp312-win_amd64.whl", hash = "sha256:518e4e4e7cd9983fb36d2ee5a5e816117fa7a22c9a4dbcace303513d337bad9d"},
+    {file = "python_box-8.0.0-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:b8b256e47e05ed5c220b4ad0761afa77238a53e1a4668335b981fc506bd285f4"},
+    {file = "python_box-8.0.0-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:27581f8d5846cf31e34af9bffa145745bfe4f3b1da25df1b9b1a575b03c66b08"},
+    {file = "python_box-8.0.0-cp313-cp313-win_amd64.whl", hash = "sha256:3b041515955e946c2dcfbd4c2d89a61429ec79d1ccdf59a2c9b83b244bcdb142"},
+    {file = "python_box-8.0.0-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:b1f6cd1f9d9ace877dc26543fbcb0f894355e89b40e0c8f94e386ba1fe0092d2"},
+    {file = "python_box-8.0.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9a7ff2abef162e53f289da382cf72b436e77a541ca6819e5755ea37257f6e98d"},
+    {file = "python_box-8.0.0-cp314-cp314-win_amd64.whl", hash = "sha256:15bcea5c9daefc0169ca7416358df8f260fc2e4fd83c53d7fdb0353000a2d9c9"},
+    {file = "python_box-8.0.0-cp315-cp315-macosx_10_15_universal2.whl", hash = "sha256:7a5f47b0cdd1deca13dbde66c26b2187020f9ed1349fc0dc7f29f62f0cb2df4a"},
+    {file = "python_box-8.0.0-cp315-cp315-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:dec04be175683f9030a13d2d526f45aa53b26d469c1140dad86e094ea46427ee"},
+    {file = "python_box-8.0.0-cp315-cp315-win_amd64.whl", hash = "sha256:50fb4990ca40dee5a0401bde799867ea80104bf844bda8c5dad0cb9f5244117e"},
+    {file = "python_box-8.0.0-py3-none-any.whl", hash = "sha256:3da1cdae8bdfef708f4b0e49899093d0e71af432e2078c09bfc90963f11e1d66"},
+    {file = "python_box-8.0.0.tar.gz", hash = "sha256:13b103ba7a4a1f2f6bcf8ee7eb2580ddebdc73ab728850965f578fc4b9e890bf"},
 ]
 
 [package.extras]
-all = ["msgpack", "ruamel.yaml (>=0.17)", "toml"]
+all = ["msgpack", "ruamel.yaml (>=0.19.1)", "toml"]
 msgpack = ["msgpack"]
 pyyaml = ["PyYAML"]
-ruamel-yaml = ["ruamel.yaml (>=0.17)"]
+ruamel-yaml = ["ruamel.yaml (>=0.19.1)"]
 toml = ["toml"]
-tomli = ["tomli ; python_version < \"3.11\"", "tomli-w"]
-yaml = ["ruamel.yaml (>=0.17)"]
+tomli = ["tomli-w"]
+yaml = ["ruamel.yaml (>=0.19.1)"]
 
 [[package]]
 name = "python-daemon"
@@ -1626,4 +1627,4 @@ torque = ["APScheduler", "inotify"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "cde0eeb5e386f372e8c871d8d2987434885074e61af4b3236628cc576356e4e3"
+content-hash = "82649d371c73904a89a7ef3bc376d15750528394a86b6f6fb19ccc130f49ae6a"
