@@ -10,16 +10,19 @@ name: Release
           or one of: major, minor, patch
         required: true
         type: string
+  pull_request:
+    types: [closed]
+    branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency: release
 
 jobs:
-  release:
+  prepare:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     steps:
       - name: Validate version input
         env:
@@ -33,6 +36,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          token: ${{ secrets.RELEASE_PR_TOKEN }}
       - name: Set up Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
@@ -49,19 +53,69 @@ jobs:
             echo "::error::The [Unreleased] section of CHANGELOG.md is empty"
             exit 1
           fi
-      - name: Commit and tag
+      - name: Create release pull request
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PR_TOKEN }}
         run: |
           version="$(poetry version -s --no-ansi)"
           if git rev-parse -q --verify "refs/tags/v${version}" > /dev/null; then
             echo "::error::Tag v${version} already exists"
             exit 1
           fi
+          branch="release/v${version}"
+          git switch -c "${branch}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add pyproject.toml CHANGELOG.md
           git commit -m "Release v${version}"
-          git tag "v${version}"
-          git push origin HEAD:main "v${version}"
+          git push origin "HEAD:refs/heads/${branch}"
+          gh pr create --base main --head "${branch}" \
+            --title "Release v${version}" \
+            --body "Prepare release v${version}."
+
+  release:
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'release/v')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout merged release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Install poetry
+        run: pip install poetry
+      - name: Build merged release
+        env:
+          RELEASE_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          version="$(poetry version -s --no-ansi)"
+          if [[ "${RELEASE_BRANCH}" != "release/v${version}" ]]; then
+            echo "::error::Release branch does not match version ${version}"
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/v${version}" > /dev/null; then
+            echo "::error::Tag v${version} already exists"
+            exit 1
+          fi
+          awk -v heading="## [${version}]" '
+            index($0, heading " - ") == 1 { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > RELEASE_NOTE.md
+          if ! grep -q '[^[:space:]]' RELEASE_NOTE.md; then
+            echo "::error::Release notes for ${version} are empty or missing"
+            exit 1
+          fi
+          poetry build
           echo "VERSION=${version}" >> "${GITHUB_ENV}"
       - name: Create GitHub release
         env:
@@ -70,4 +124,4 @@ jobs:
           gh release create "v${VERSION}" dist/* \
             --title "v${VERSION}" \
             --notes-file RELEASE_NOTE.md \
-            --verify-tag
+            --target "${GITHUB_SHA}"
