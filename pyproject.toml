@@ -73,7 +73,7 @@ optional = true
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.3.0"
 mkdocs-material = "^9.6.23"
-mkdocs-include-markdown-plugin = "^3.8.1"
+mkdocs-include-markdown-plugin = ">=3.8.1,<8.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
