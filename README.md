@@ -10,7 +10,7 @@ An overhauled Python 3 fork of [pyrocore](https://github.com/pyroscope/pyrocore)
 > to use Docker with this fork, build the image yourself from the included
 > `Dockerfile` (`docker build -t pyrosimple .`).
 >
-> Supported rTorrent version: 0.16.27. The original project does not
+> Supported rTorrent version: 0.16.29. The original project does not
 > support the updated rTorrent versions, which is the main reason for this
 > fork.
 
@@ -36,7 +36,7 @@ If you've used rtcontrol/rtxmlrpc before, you should feel right at home.
 The following lists are not exhaustive, and don't cover many of the
 internal improvements and refactoring.
 
-- Requires Python 3.12 or newer and supports rTorrent 0.16.27
+- Requires Python 3.12 or newer and supports rTorrent 0.16.29
 - Simpler poetry-based build system, with a single package to install
 - Performance improvements (faster templating and only fetching
   required fields)
