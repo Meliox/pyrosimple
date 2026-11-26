@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-11-26
+
 ### Changed
 - `watch` job: Add `trust_resume` option to keep embedded fast-resume data with rTorrent 0.16.29+ (via `load.*_edited`)
 - Update documented supported rTorrent version to 0.16.29
@@ -553,7 +555,8 @@ If you just want to use the pyrocore tools on python 3 without all the
 new features, you can use the `release-1.X` branch or the 1.X
 releases.
 
-[Unreleased]: https://github.com/Meliox/pyrosimple/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/Meliox/pyrosimple/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/Meliox/pyrosimple/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Meliox/pyrosimple/releases/tag/v3.0.0
 [2.14.2]: https://github.com/kannibalox/pyrosimple/compare/v2.14.1...v2.14.2
 [2.14.1]: https://github.com/kannibalox/pyrosimple/compare/v2.14.0...v2.14.1
