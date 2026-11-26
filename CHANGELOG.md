@@ -5,12 +5,14 @@
 ## [3.0.0] - 2026-11-15
 
 ### Changed
+- `watch` job: Add `trust_resume` option to keep embedded fast-resume data with rTorrent 0.16.29+ (via `load.*_edited`)
 - Explicitly support python 3.15
 - Drop support for Python versions earlier than 3.12
-- Update documented supported rTorrent version to 0.16.27
+- Update documented supported rTorrent version to 0.16.29
 - Use the `events` logging group in the generated rTorrent config for rTorrent 0.16.26+
 
 ### Fixed
+- Moving items to another host now uses the `load.*_edited` commands when available, so fast-resume data is retained with rTorrent 0.16.29+
 - `mktor`/`chtor`: Fix error when removing non-existing key with `-s`
 - `rtcontrol`: Avoid spawning multiprocessing resource-tracker processes for threaded result fetching, which accumulated as zombies when run by `pyrotorque` as container PID 1 on Python 3.14+.
 - `rtcontrol --cull`/`--purge`: Remove selected torrents even when their data directory is already missing, including cross-seeded torrents sharing a directory.

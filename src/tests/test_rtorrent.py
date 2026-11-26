@@ -3,10 +3,12 @@
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 """
+import base64
 import logging
 import unittest
 
-from unittest.mock import Mock, call
+from pathlib import Path
+from unittest.mock import MagicMock, Mock, call
 
 import pytest
 
@@ -16,6 +18,7 @@ import pyrosimple
 
 from pyrosimple import error
 from pyrosimple.torrent import rtorrent
+from pyrosimple.util import metafile, rpc
 from pyrosimple.util.rpc import RTorrentProxy
 
 
@@ -50,6 +53,54 @@ def test_validate_sort_fields():
         rtorrent.validate_sort_fields("very_fake_field.raw")
     with pytest.raises(error.UserError):
         rtorrent.validate_sort_fields("name.very_fake_filter")
+
+
+@pytest.mark.parametrize(
+    ("url", "has_edited", "expected"),
+    [
+        ("scgi://remote:5000", True, "load.raw_verbose_edited"),
+        ("scgi://remote:5000", False, "load.raw_verbose"),
+        ("scgi://remote:5000?rpc=json", True, "load.verbose_edited"),
+        ("scgi://remote:5000?rpc=json", False, "load.verbose"),
+    ],
+)
+def test_move_to_host_keeps_fast_resume(monkeypatch, url, has_edited, expected):
+    """Fast-resume data must survive the load on rTorrent 0.16.29+"""
+    monkeypatch.delenv("PYRO_FORCE_JSONRPC_LOAD_RAW", raising=False)
+    monkeypatch.setattr(metafile.Metafile, "add_fast_resume", lambda *_: None)
+    torrent_data = Path(Path(__file__).parent, "single.torrent").read_bytes()
+
+    local_engine = MagicMock()
+    local_engine.has_method.return_value = True
+    local_proxy = local_engine.open.return_value
+    local_proxy.d.download_bytes.base64.return_value = base64.b64encode(torrent_data)
+    local_proxy.d.directory_base.return_value = "/data"
+
+    remote_engine = MagicMock()
+    remote_engine.has_method.side_effect = lambda name: has_edited or not name.endswith(
+        "_edited"
+    )
+    remote_proxy = remote_engine.open.return_value
+    # Not present before the load, present afterwards
+    remote_proxy.d.hash.side_effect = [rpc.HashNotFound("missing"), "ok", "ok"]
+    monkeypatch.setattr(rtorrent, "RtorrentEngine", lambda _url: remote_engine)
+
+    item = rtorrent.RtorrentItem(local_engine, {"hash": "A" * 40})
+    monkeypatch.setattr(item, "custom_items", dict)
+    assert item.move_to_host(url, copy=True)
+
+    namespace, method = expected.split(".")
+    called = getattr(getattr(remote_proxy, namespace), method)
+    called.assert_called_once()
+    assert called.call_args.args[0] == ""
+    # The other load variant must not have been used
+    other = {
+        "load.raw_verbose_edited": "raw_verbose",
+        "load.raw_verbose": "raw_verbose_edited",
+        "load.verbose_edited": "verbose",
+        "load.verbose": "verbose_edited",
+    }[expected]
+    getattr(remote_proxy.load, other).assert_not_called()
 
 
 def test_tag_add_then_remove_uses_fresh_rpc_value():

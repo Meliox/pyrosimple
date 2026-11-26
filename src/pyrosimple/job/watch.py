@@ -38,6 +38,7 @@ class TreeWatch(BaseJob):
         self.config.setdefault("remove_unhandled", False)
         self.config.setdefault("remove_already_added", False)
         self.config.setdefault("load_mode", "")
+        self.config.setdefault("trust_resume", False)
         self.config.setdefault("start_immediately", True)
         self.config.setdefault("preload_fields", [])
         self.config["paths"] = {
@@ -175,14 +176,18 @@ class TreeWatch(BaseJob):
         template_vars = self.build_metafile_variables(metapath, torrent_data)
 
         proxy = self.engine.open()
-        if self.config["load_mode"] in ("start", "started"):
-            load_cmd = proxy.load.start_verbose
-        else:
-            load_cmd = proxy.load.verbose
+        start = self.config["load_mode"] in ("start", "started")
         if "start" in template_vars["flags"]:
-            load_cmd = proxy.load.start_verbose
+            start = True
         elif "load" in template_vars["flags"]:
-            load_cmd = proxy.load.verbose
+            start = False
+        method = "start_verbose" if start else "verbose"
+        # rTorrent 0.16.29+ only keeps embedded fast-resume data with *_edited
+        if self.config["trust_resume"] and self.engine.has_method(
+            f"load.{method}_edited"
+        ):
+            method += "_edited"
+        load_cmd = getattr(proxy.load, method)
         self.log.debug("Templating values are: %r", template_vars)
         if self.config["dry_run"]:
             self.log.info(

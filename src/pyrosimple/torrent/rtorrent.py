@@ -481,7 +481,8 @@ class RtorrentItem(engine.TorrentProxy):
         parsed_url = urllib.parse.urlsplit(remote_url)
         queries = urllib.parse.parse_qs(parsed_url.query)
         rpc_protocol = queries.get("rpc", ["xml"])[0]
-        remote_proxy = RtorrentEngine(remote_url).open()
+        remote_engine = RtorrentEngine(remote_url)
+        remote_proxy = remote_engine.open()
         proxy = self._engine.open()
         self._engine.logger.debug("Attempting to move %s to %s", self.hash, remote_url)
         extra_cmds: List[str] = []
@@ -520,9 +521,17 @@ class RtorrentItem(engine.TorrentProxy):
             proxy.d.stop(self.hash)
         self._engine.logger.debug("Running extra commands on load: %s", extra_cmds)
         if rpc_protocol == "json" and not os.getenv("PYRO_FORCE_JSONRPC_LOAD_RAW"):
-            remote_proxy.load.verbose("", rpc_metafile, *extra_cmds)
+            load_method = "load.verbose"
         else:
-            remote_proxy.load.raw_verbose("", rpc_metafile, *extra_cmds)
+            load_method = "load.raw_verbose"
+        # rTorrent 0.16.29+ discards embedded fast-resume data unless the
+        # *_edited variant is used.
+        if remote_engine.has_method(f"{load_method}_edited"):
+            load_method += "_edited"
+        remote_load = remote_proxy
+        for part in load_method.split("."):
+            remote_load = getattr(remote_load, part)
+        remote_load("", rpc_metafile, *extra_cmds)
         for _ in range(0, 10):
             try:
                 remote_proxy.d.hash(self.hash)

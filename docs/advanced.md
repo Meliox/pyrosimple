@@ -218,9 +218,11 @@ rtxmlrpc -q load.normal '' "$metafile" \
     "d.directory_base.set=\"$data_dir\"" "d.priority.set=1"
 ```
 
-Use `load.start` to start that item immediately. If the metafile has
-fast-resume information and the data is already there, no extra
-hashing is done.
+Use `load.start` to start that item immediately. Since rTorrent 0.16.29,
+normal load commands discard any fast-resume information embedded in the
+metafile. If the metafile has trusted fast-resume information (e.g. added
+with `chtor --fast-resume`) and the data is already there, use the
+`load.*_edited` variants (e.g. `load.start_edited`) to avoid hashing.
 
 And just to show you can add more on-load commands, the priority of
 the new item is set to `low`. Other common on-load commands are those

@@ -244,7 +244,12 @@ Arguments:
   hash already exists in the client. This is mainly useful to prevent
   errors and files from building up if files are accidentally added to
   the directory twice.
-* `cmd_*`: Any argument starting with this prefix is treated as a
+* `trust_resume`: If true (default false), load torrents with the
+  `load.*_edited` commands so that fast-resume data embedded in the
+  files is kept instead of being discarded. Requires rTorrent 0.16.29+
+  (ignored on older versions). Only enable this if you trust the files
+  in the watch directory, as incorrect resume data can cause unverified
+  pieces to be uploaded.* `cmd_*`: Any argument starting with this prefix is treated as a
   custom command that will be run when the torrent is loaded. As seen
   in the example, this can be a fully-templated string, with some
   fields being auto-created by the job itself.
